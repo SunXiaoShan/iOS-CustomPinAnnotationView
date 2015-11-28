@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <MapKit/MapKit.h>
 #import "CustomMapOverlay.h"
+#import "WildcardGestureRecognizer.h"
 
 #define DEFAULT_RADIUS 100
 

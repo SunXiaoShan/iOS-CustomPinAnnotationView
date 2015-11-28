@@ -8,10 +8,20 @@
 
 #import "ViewController.h"
 
+#define DEFAULT_RADIUS 100
+#define PIN_TAG 100
+
 @interface ViewController ()
 {
+    // Anchor point
     NSMutableArray *arrAnchorPoint;
     UIButton *mBeSelectAnchorIcon;
+    
+    // drop point
+    NSMutableArray *mPinArr;
+    MapPinAnnotationObj *dropPin;
+    MapPinAnnotationObj *resizePin;
+    MapPinAnnotationObj *addPin;
 }
 
 @property (weak, nonatomic) IBOutlet MKMapView *mapView;
@@ -19,6 +29,8 @@
 @end
 
 @implementation ViewController
+
+double const circleRadius = 0;
 
 - (void) viewDidLoad {
     [super viewDidLoad];
@@ -36,7 +48,11 @@
     _mapView.delegate = self;
     _mapView.rotateEnabled = NO;
     
+    // for Anchor point
     [self showAnchorPoint];
+    
+    // for drop point
+    [self setupDropPoint];
 }
 
 #pragma mark - map view delegate
@@ -48,14 +64,16 @@
     for (int i=0; i<[arrAnchorPoint count]; i++) {
         if ([annotation isEqual:arrAnchorPoint[i]]) {
             index = i+1;
-            break;
+            return [self mapView4Anchor:mapView viewForAnnotation:annotation index:index];
         }
     }
     
-    if (index == -1) {
-        return nil;
-    }
-    
+    return [self mapView4Drop:mapView viewForAnnotation:annotation];
+}
+
+- (MKAnnotationView *) mapView4Anchor:(MKMapView *)mapView
+                    viewForAnnotation:(id <MKAnnotation>)annotation
+                                index:(int)index {
     static NSString * PinIdentifier = @"Pin";
     CGRect frame = CGRectMake(0, 0, 50, 50);
     
@@ -78,6 +96,65 @@
     [annotationView addSubview:headShot];
     
     return annotationView;
+    
+}
+
+- (MKAnnotationView *) mapView4Drop:(MKMapView *)mapView
+                    viewForAnnotation:(id <MKAnnotation>)annotation {
+    
+    NSInteger tag = [self getAnnotationViewTag:annotation];
+    MapPinAnnotationObj *pin = [self getPinAnnotationViewByAnnotation4CreateView:annotation];
+    if (tag == -1 || !pin) {
+        NSLog(@"no annotation");
+        return nil;
+    }
+    
+    if ([annotation isKindOfClass:[MKUserLocation class]])
+        return nil;
+    pin.annotationView = [[MKPinAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:@"pin"];
+    [pin.annotationView setDraggable:YES];
+    pin.annotationView.pinTintColor = [UIColor purpleColor];
+    
+    [pin.annotationView setSelected:YES animated:YES];
+    return [pin.annotationView init];
+}
+
+- (void) mapView:(MKMapView *)mapView
+  annotationView:(MKAnnotationView *)annotationView
+didChangeDragState:(MKAnnotationViewDragState)newState
+    fromOldState:(MKAnnotationViewDragState)oldState {
+    
+    if(newState == MKAnnotationViewDragStateStarting){
+        dropPin = [self getPinAnnotationViewByAnnotationView:annotationView];
+        dropPin.panEnabled = YES;
+    }
+    if (newState == MKAnnotationViewDragStateEnding) {
+        dropPin.droppedAt = annotationView.annotation.coordinate;
+        [self addCircle:dropPin];
+        dropPin = nil;
+    }
+}
+
+- (MKOverlayRenderer *)mapView:(MKMapView *)mapView
+            rendererForOverlay:(id <MKOverlay>)overlay
+{
+    if (dropPin == nil && addPin == nil) {
+        return nil;
+    }
+    
+    MapPinAnnotationObj *pin = dropPin?dropPin:addPin;
+    
+    pin.circleView = [[CustomMKCircleOverlay alloc] initWithCircle:overlay];
+    pin.circleView.fillColor = [UIColor redColor];
+    pin.circleView.delegate = self;
+    
+    return pin.circleView;
+}
+
+#pragma mark - CustomMKCircleOverlay delegate
+
+-(void)onRadiusChange:(CustomMKCircleOverlay *)circleView radius:(CGFloat)radius{
+    NSLog(@"on radius change: %f", radius);
 }
 
 #pragma mark - button action
@@ -109,6 +186,7 @@
     CGImageRelease(imageRef);
     
     NSString *fullPath = [self getImagePath:image];
+    NSLog(@"path : %@", fullPath);
     [mBeSelectAnchorIcon setImage:image forState:UIControlStateNormal];
 }
 
@@ -117,7 +195,7 @@
     [self dismissViewControllerAnimated:YES completion:^{}];
 }
 
-#pragma mark - other
+#pragma mark - Anchor : other
 
 - (void) showAnchorPoint {
     
@@ -265,6 +343,197 @@
     UIGraphicsEndImageContext();
     
     return imageCopy;
+}
+
+#pragma mark - drop : other
+
+- (void) setupDropPoint {
+    
+    UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(foundTap:)];
+    tapRecognizer.numberOfTapsRequired = 1;
+    tapRecognizer.numberOfTouchesRequired = 1;
+    [self.mapView addGestureRecognizer:tapRecognizer];
+    
+    WildcardGestureRecognizer * tapInterceptor = [[WildcardGestureRecognizer alloc] init];
+    tapInterceptor.touchesBeganCallback = ^(NSSet * touches, UIEvent * event) {
+        
+        if (resizePin) {
+            return;
+        }
+        
+        UITouch *touch = [touches anyObject];
+        CGPoint p = [touch locationInView:self.mapView];
+        
+        CLLocationCoordinate2D coord = [self.mapView convertPoint:p toCoordinateFromView:self.mapView];
+        MKMapPoint mapPoint = MKMapPointForCoordinate(coord);
+        
+        for (MapPinAnnotationObj *view in mPinArr) {
+            
+            MKMapRect mapRect = [view.circleView circlebounds];
+            
+            double xPath = mapPoint.x - (mapRect.origin.x - (mapRect.size.width/2));
+            double yPath = mapPoint.y - (mapRect.origin.y - (mapRect.size.height/2));
+            
+            if (xPath >= 0 && yPath >= 0 && xPath < mapRect.size.width && yPath < mapRect.size.height) {
+                NSLog(@"Disable Map Panning");
+                resizePin = view;
+                break;
+            }
+        }
+        
+        if (resizePin) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.mapView.scrollEnabled = NO;
+                resizePin.panEnabled = NO;
+                resizePin.oldoffset = [resizePin.circleView getCircleRadius];
+            });
+            
+        } else {
+            self.mapView.scrollEnabled = YES;
+        }
+        resizePin.lastPoint = mapPoint;
+    };
+    
+    tapInterceptor.touchesMovedCallback = ^(NSSet * touches, UIEvent * event) {
+        
+        if (resizePin && !resizePin.panEnabled && [event allTouches].count == 1) {
+            UITouch *touch = [touches anyObject];
+            CGPoint p = [touch locationInView:self.mapView];
+            
+            CLLocationCoordinate2D coord = [self.mapView convertPoint:p toCoordinateFromView:self.mapView];
+            MKMapPoint mapPoint = MKMapPointForCoordinate(coord);
+            
+            MKMapRect mRect = self.mapView.visibleMapRect;
+            MKMapRect circleRect = [resizePin.circleView circlebounds];
+            
+            /* Check if the map needs to zoom */
+            if (circleRect.size.width > mRect.size.width *.55) {
+                MKCoordinateRegion region;
+                //Set Zoom level using Span
+                MKCoordinateSpan span;
+                region.center = resizePin.droppedAt;
+                span.latitudeDelta = self.mapView.region.span.latitudeDelta * 2.0;
+                span.longitudeDelta = self.mapView.region.span.longitudeDelta * 2.0;
+                region.span = span;
+                [_mapView setRegion:region animated:TRUE];
+            }
+            if (circleRect.size.width < mRect.size.width *.25) {
+                MKCoordinateRegion region;
+                //Set Zoom level using Span
+                MKCoordinateSpan span;
+                region.center = resizePin.droppedAt;
+                span.latitudeDelta = _mapView.region.span.latitudeDelta / 3.0002;
+                span.longitudeDelta = _mapView.region.span.longitudeDelta / 3.0002;
+                region.span = span;
+                [_mapView setRegion:region animated:TRUE];
+            }
+            
+            double meterDistance = (mapPoint.x - resizePin.lastPoint.x) / MKMapPointsPerMeterAtLatitude(self.mapView.centerCoordinate.latitude)+ resizePin.oldoffset;
+            if (meterDistance > 0) {
+                [resizePin.circleView setCircleRadius:meterDistance];
+            }
+            resizePin.setRadius = resizePin.circleView.getCircleRadius;
+            
+            NSString *distance;
+            if (resizePin.setRadius > 1000) {
+                distance = [NSString stringWithFormat:@"%.02f km", resizePin.setRadius / 1000];
+            } else {
+                distance = [NSString stringWithFormat:@"%.f m", resizePin.setRadius];
+            }
+            NSLog(@"distance:%@", distance);
+        }
+    };
+    
+    tapInterceptor.touchesEndedCallback = ^(NSSet * touches, UIEvent * event) {
+        
+        resizePin.panEnabled = YES;
+        
+        self.mapView.zoomEnabled = YES;
+        self.mapView.scrollEnabled = YES;
+        self.mapView.userInteractionEnabled = YES;
+        
+        resizePin = nil;
+    };
+    
+    [self.mapView addGestureRecognizer:tapInterceptor];
+}
+
+- (void) foundTap:(UITapGestureRecognizer *)recognizer
+{
+    if (!mPinArr) {
+        mPinArr = [[NSMutableArray alloc] init];
+    }
+    
+    CGPoint point = [recognizer locationInView:self.mapView];
+    CGRect frameMap = _mapView.frame;
+    point.y += frameMap.origin.y;
+    point.x += frameMap.origin.x;
+    
+    CLLocationCoordinate2D tapPoint = [self.mapView convertPoint:point toCoordinateFromView:self.view];
+    MKPointAnnotation *point1 = [[MKPointAnnotation alloc] init];
+    point1.coordinate = tapPoint;
+    
+    MapPinAnnotationObj *pin = [[MapPinAnnotationObj alloc] init];
+    pin.droppedAt = tapPoint;
+    [pin setTag:[mPinArr count] + PIN_TAG];
+    [mPinArr addObject:pin];
+    addPin = pin;
+    [self addCircle:pin];
+    addPin = nil;
+}
+
+- (void) addCircle:(MapPinAnnotationObj *)pin {
+    
+    if (pin.circle) {
+        [self.mapView removeOverlay:pin.circle];
+    }
+    pin.circle = [MKCircle circleWithCenterCoordinate:pin.droppedAt radius:circleRadius];
+    
+    [self.mapView addOverlay: pin.circle];
+    
+    [pin.circleView setCircleRadius:pin.setRadius];
+    pin.circleView.tag = pin.tag;
+    
+    if (pin.point == nil) {
+        pin.point = [[MKPointAnnotation alloc] init];
+        pin.point.coordinate = pin.droppedAt;
+        [self.mapView addAnnotation:pin.point];
+    }
+}
+
+- (NSInteger) getAnnotationViewTag:(id <MKAnnotation>)annotation
+{
+    for (MapPinAnnotationObj *view in mPinArr) {
+        if ([view.point isEqual:annotation]) {
+            return view.tag;
+        }
+    }
+    return -1;
+}
+
+- (MapPinAnnotationObj *) getPinAnnotationViewByAnnotation4CreateView:(id <MKAnnotation>)annotation
+{
+    for (MapPinAnnotationObj *view in mPinArr) {
+        if ([view.point isEqual:annotation]) {
+            // avoid same annotation
+            if (!view.annotationView) {
+                return view;
+            }
+        }
+    }
+    return nil;
+}
+
+- (MapPinAnnotationObj *) getPinAnnotationViewByAnnotationView:(MKAnnotationView *)annotationView
+{
+    for (MapPinAnnotationObj *view in mPinArr) {
+        if ([view.point isEqual:annotationView.annotation]) {
+            return view;
+        } else if (view.tag == annotationView.tag) {
+            return view;
+        }
+    }
+    return nil;
 }
 
 @end

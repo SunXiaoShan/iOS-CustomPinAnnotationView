@@ -8,7 +8,6 @@
 
 #import <UIKit/UIKit.h>
 #import <MapKit/MapKit.h>
-#import "CustomMapOverlay.h"
 #import "MapPinAnnotationObj.h"
 
 @interface ViewController : UIViewController<MKMapViewDelegate, CustomMapDelegate, UIImagePickerControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate,UIGestureRecognizerDelegate>

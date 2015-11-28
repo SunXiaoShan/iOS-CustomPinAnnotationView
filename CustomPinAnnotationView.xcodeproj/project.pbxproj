@@ -35,6 +35,8 @@
 		8FB02DA91C0979BF00B960E4 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8FB02DA81C0979BF00B960E4 /* CoreGraphics.framework */; };
 		8FB02DAB1C0979C600B960E4 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8FB02DAA1C0979C600B960E4 /* UIKit.framework */; };
 		8FB02DAD1C0979E200B960E4 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 8FB02DAC1C0979E200B960E4 /* libz.tbd */; };
+		8FB02DB01C09FD1A00B960E4 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 8FB02DAF1C09FD1A00B960E4 /* MBProgressHUD.m */; };
+		8FB02DB31C09FD4400B960E4 /* BaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8FB02DB21C09FD4400B960E4 /* BaseViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -96,6 +98,10 @@
 		8FB02DA81C0979BF00B960E4 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		8FB02DAA1C0979C600B960E4 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		8FB02DAC1C0979E200B960E4 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		8FB02DAE1C09FD1A00B960E4 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MBProgressHUD.h; path = tool/MBProgressHUD.h; sourceTree = "<group>"; };
+		8FB02DAF1C09FD1A00B960E4 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MBProgressHUD.m; path = tool/MBProgressHUD.m; sourceTree = "<group>"; };
+		8FB02DB11C09FD4400B960E4 /* BaseViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseViewController.h; sourceTree = "<group>"; };
+		8FB02DB21C09FD4400B960E4 /* BaseViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BaseViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -161,6 +167,8 @@
 				8FB02D4B1C0977D400B960E4 /* AppDelegate.h */,
 				8FB02D4C1C0977D400B960E4 /* AppDelegate.m */,
 				8FB02D571C0977D400B960E4 /* Assets.xcassets */,
+				8FB02DB11C09FD4400B960E4 /* BaseViewController.h */,
+				8FB02DB21C09FD4400B960E4 /* BaseViewController.m */,
 				8FB02D541C0977D400B960E4 /* CustomPinAnnotationView.xcdatamodeld */,
 				8FB02D931C09788500B960E4 /* framework */,
 				8FB02D7F1C09784200B960E4 /* image */,
@@ -204,6 +212,8 @@
 		8FB02D7E1C09783E00B960E4 /* tool */ = {
 			isa = PBXGroup;
 			children = (
+				8FB02DAE1C09FD1A00B960E4 /* MBProgressHUD.h */,
+				8FB02DAF1C09FD1A00B960E4 /* MBProgressHUD.m */,
 				8FB02D881C09785D00B960E4 /* CustomMapOverlay.h */,
 				8FB02D891C09785D00B960E4 /* CustomMapOverlay.m */,
 				8FB02D8A1C09785D00B960E4 /* MapPinAnnotationObj.h */,
@@ -386,12 +396,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				8FB02D561C0977D400B960E4 /* CustomPinAnnotationView.xcdatamodeld in Sources */,
+				8FB02DB31C09FD4400B960E4 /* BaseViewController.m in Sources */,
 				8FB02D901C09785D00B960E4 /* WildcardGestureRecognizer.m in Sources */,
 				8FB02D501C0977D400B960E4 /* ViewController.m in Sources */,
 				8FB02D4D1C0977D400B960E4 /* AppDelegate.m in Sources */,
 				8FB02D4A1C0977D400B960E4 /* main.m in Sources */,
 				8FB02D8E1C09785D00B960E4 /* CustomMapOverlay.m in Sources */,
 				8FB02D8F1C09785D00B960E4 /* MapPinAnnotationObj.m in Sources */,
+				8FB02DB01C09FD1A00B960E4 /* MBProgressHUD.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

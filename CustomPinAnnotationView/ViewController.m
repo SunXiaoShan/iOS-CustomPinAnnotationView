@@ -22,6 +22,7 @@
     MapPinAnnotationObj *dropPin;
     MapPinAnnotationObj *resizePin;
     MapPinAnnotationObj *addPin;
+    NSString *distance;
 }
 
 @property (weak, nonatomic) IBOutlet MKMapView *mapView;
@@ -174,7 +175,7 @@ didChangeDragState:(MKAnnotationViewDragState)newState
 
 #pragma mark - picker delegate
 
-- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+- (void) imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
     [picker dismissViewControllerAnimated:YES completion:^{}];
     
@@ -434,13 +435,12 @@ didChangeDragState:(MKAnnotationViewDragState)newState
             }
             resizePin.setRadius = resizePin.circleView.getCircleRadius;
             
-            NSString *distance;
             if (resizePin.setRadius > 1000) {
                 distance = [NSString stringWithFormat:@"%.02f km", resizePin.setRadius / 1000];
             } else {
                 distance = [NSString stringWithFormat:@"%.f m", resizePin.setRadius];
             }
-            NSLog(@"distance:%@", distance);
+            NSLog(@"move distance:%@", distance);
         }
     };
     
@@ -451,6 +451,12 @@ didChangeDragState:(MKAnnotationViewDragState)newState
         self.mapView.zoomEnabled = YES;
         self.mapView.scrollEnabled = YES;
         self.mapView.userInteractionEnabled = YES;
+        
+        if (resizePin) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self showToast:distance];
+            });
+        }
         
         resizePin = nil;
     };

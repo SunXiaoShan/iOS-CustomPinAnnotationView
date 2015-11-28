@@ -9,8 +9,9 @@
 #import <UIKit/UIKit.h>
 #import <MapKit/MapKit.h>
 #import "MapPinAnnotationObj.h"
+#import "BaseViewController.h"
 
-@interface ViewController : UIViewController<MKMapViewDelegate, CustomMapDelegate, UIImagePickerControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate,UIGestureRecognizerDelegate>
+@interface ViewController : BaseViewController<MKMapViewDelegate, CustomMapDelegate, UIImagePickerControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate,UIGestureRecognizerDelegate>
 
 
 @end

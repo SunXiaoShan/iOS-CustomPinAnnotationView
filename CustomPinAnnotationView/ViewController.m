@@ -36,36 +36,10 @@
     _mapView.delegate = self;
     _mapView.rotateEnabled = NO;
     
-    [self showPoint];
+    [self showAnchorPoint];
 }
 
-- (void) showPoint {
-    
-    CLLocation *LAX = [[CLLocation alloc] initWithLatitude:23.9424955
-                                                 longitude:118.4080684];
-    CLLocation *JFK = [[CLLocation alloc] initWithLatitude:40.6397511
-                                                 longitude:134.4080684];
-    CLLocation *JFK01 = [[CLLocation alloc] initWithLatitude:41.6397511
-                                                   longitude:135.4080684];
-    CLLocation *JFK02 = [[CLLocation alloc] initWithLatitude:46.6397511
-                                                   longitude:137.4080684];
-    
-    CLLocationCoordinate2D coordinates[4] = {
-        LAX.coordinate,
-        JFK.coordinate,
-        JFK01.coordinate,
-        JFK02.coordinate
-    };
-    
-    arrAnchorPoint = [[NSMutableArray alloc] init];
-    for (int i=0; i<4; i++) {
-        CLLocationCoordinate2D coordinate = coordinates[i];
-        MKPointAnnotation *point = [[MKPointAnnotation alloc] init];
-        point.coordinate = coordinate;
-        [arrAnchorPoint addObject:point];
-    }
-    [_mapView showAnnotations:arrAnchorPoint animated:YES];
-}
+#pragma mark - map view delegate
 
 - (MKAnnotationView *)mapView:(MKMapView *)mapView
             viewForAnnotation:(id <MKAnnotation>)annotation
@@ -106,6 +80,8 @@
     return annotationView;
 }
 
+#pragma mark - button action
+
 - (void) switchHeadShot:(id)sender {
     
     mBeSelectAnchorIcon = sender;
@@ -118,6 +94,8 @@
     
     [self presentViewController:imagePickerController animated:NO completion:nil];
 }
+
+#pragma mark - picker delegate
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
@@ -137,6 +115,36 @@
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
     [self dismissViewControllerAnimated:YES completion:^{}];
+}
+
+#pragma mark - other
+
+- (void) showAnchorPoint {
+    
+    CLLocation *LAX = [[CLLocation alloc] initWithLatitude:23.9424955
+                                                 longitude:118.4080684];
+    CLLocation *JFK = [[CLLocation alloc] initWithLatitude:40.6397511
+                                                 longitude:134.4080684];
+    CLLocation *JFK01 = [[CLLocation alloc] initWithLatitude:41.6397511
+                                                   longitude:135.4080684];
+    CLLocation *JFK02 = [[CLLocation alloc] initWithLatitude:46.6397511
+                                                   longitude:137.4080684];
+    
+    CLLocationCoordinate2D coordinates[4] = {
+        LAX.coordinate,
+        JFK.coordinate,
+        JFK01.coordinate,
+        JFK02.coordinate
+    };
+    
+    arrAnchorPoint = [[NSMutableArray alloc] init];
+    for (int i=0; i<4; i++) {
+        CLLocationCoordinate2D coordinate = coordinates[i];
+        MKPointAnnotation *point = [[MKPointAnnotation alloc] init];
+        point.coordinate = coordinate;
+        [arrAnchorPoint addObject:point];
+    }
+    [_mapView showAnnotations:arrAnchorPoint animated:YES];
 }
 
 - (NSString *) getImagePath:(UIImage *)image {

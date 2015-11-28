@@ -10,8 +10,8 @@
 
 @interface ViewController ()
 {
-    NSMutableArray *mPinArr;
-    UIButton *mBeSelectIcon;
+    NSMutableArray *arrAnchorPoint;
+    UIButton *mBeSelectAnchorIcon;
 }
 
 @property (weak, nonatomic) IBOutlet MKMapView *mapView;
@@ -57,22 +57,22 @@
         JFK02.coordinate
     };
     
-    mPinArr = [[NSMutableArray alloc] init];
+    arrAnchorPoint = [[NSMutableArray alloc] init];
     for (int i=0; i<4; i++) {
         CLLocationCoordinate2D coordinate = coordinates[i];
         MKPointAnnotation *point = [[MKPointAnnotation alloc] init];
         point.coordinate = coordinate;
-        [mPinArr addObject:point];
+        [arrAnchorPoint addObject:point];
     }
-    [_mapView showAnnotations:mPinArr animated:YES];
+    [_mapView showAnnotations:arrAnchorPoint animated:YES];
 }
 
 - (MKAnnotationView *)mapView:(MKMapView *)mapView
             viewForAnnotation:(id <MKAnnotation>)annotation
 {
     int index = -1;
-    for (int i=0; i<[mPinArr count]; i++) {
-        if ([annotation isEqual:mPinArr[i]]) {
+    for (int i=0; i<[arrAnchorPoint count]; i++) {
+        if ([annotation isEqual:arrAnchorPoint[i]]) {
             index = i+1;
             break;
         }
@@ -108,7 +108,7 @@
 
 - (void) switchHeadShot:(id)sender {
     
-    mBeSelectIcon = sender;
+    mBeSelectAnchorIcon = sender;
     
     NSUInteger sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
     UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
@@ -130,14 +130,12 @@
     UIImage *image = [UIImage imageWithCGImage:imageRef];
     CGImageRelease(imageRef);
     
-    
     NSString *fullPath = [self getImagePath:image];
-    [mBeSelectIcon setImage:image forState:UIControlStateNormal];
+    [mBeSelectAnchorIcon setImage:image forState:UIControlStateNormal];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
-    [[UIApplication sharedApplication] setStatusBarHidden:NO];
     [self dismissViewControllerAnimated:YES completion:^{}];
 }
 

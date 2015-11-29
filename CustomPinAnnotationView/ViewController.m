@@ -112,6 +112,7 @@ double const circleRadius = 0;
     
     if ([annotation isKindOfClass:[MKUserLocation class]])
         return nil;
+    
     pin.annotationView = [[MKPinAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:@"pin"];
     [pin.annotationView setDraggable:YES];
     pin.annotationView.pinTintColor = [UIColor purpleColor];
@@ -521,10 +522,7 @@ didChangeDragState:(MKAnnotationViewDragState)newState
 {
     for (MapPinAnnotationObj *view in mPinArr) {
         if ([view.point isEqual:annotation]) {
-            // avoid same annotation
-            if (!view.annotationView) {
-                return view;
-            }
+            return view;
         }
     }
     return nil;

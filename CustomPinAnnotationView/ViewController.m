@@ -18,7 +18,7 @@
     UIButton *mBeSelectAnchorIcon;
     
     // drop point
-    NSMutableArray *mPinArr;
+    NSMutableArray *arrDropPin;
     MapPinAnnotationObj *dropPin;
     MapPinAnnotationObj *resizePin;
     MapPinAnnotationObj *addPin;
@@ -369,7 +369,7 @@ didChangeDragState:(MKAnnotationViewDragState)newState
         CLLocationCoordinate2D coord = [self.mapView convertPoint:p toCoordinateFromView:self.mapView];
         MKMapPoint mapPoint = MKMapPointForCoordinate(coord);
         
-        for (MapPinAnnotationObj *view in mPinArr) {
+        for (MapPinAnnotationObj *view in arrDropPin) {
             
             MKMapRect mapRect = [view.circleView circlebounds];
             
@@ -467,8 +467,8 @@ didChangeDragState:(MKAnnotationViewDragState)newState
 
 - (void) foundTap:(UITapGestureRecognizer *)recognizer
 {
-    if (!mPinArr) {
-        mPinArr = [[NSMutableArray alloc] init];
+    if (!arrDropPin) {
+        arrDropPin = [[NSMutableArray alloc] init];
     }
     
     CGPoint point = [recognizer locationInView:self.mapView];
@@ -482,8 +482,8 @@ didChangeDragState:(MKAnnotationViewDragState)newState
     
     MapPinAnnotationObj *pin = [[MapPinAnnotationObj alloc] init];
     pin.droppedAt = tapPoint;
-    [pin setTag:[mPinArr count] + PIN_TAG];
-    [mPinArr addObject:pin];
+    [pin setTag:[arrDropPin count] + PIN_TAG];
+    [arrDropPin addObject:pin];
     addPin = pin;
     [self addCircle:pin];
     addPin = nil;
@@ -510,7 +510,7 @@ didChangeDragState:(MKAnnotationViewDragState)newState
 
 - (NSInteger) getAnnotationViewTag:(id <MKAnnotation>)annotation
 {
-    for (MapPinAnnotationObj *view in mPinArr) {
+    for (MapPinAnnotationObj *view in arrDropPin) {
         if ([view.point isEqual:annotation]) {
             return view.tag;
         }
@@ -520,7 +520,7 @@ didChangeDragState:(MKAnnotationViewDragState)newState
 
 - (MapPinAnnotationObj *) getPinAnnotationViewByAnnotation4CreateView:(id <MKAnnotation>)annotation
 {
-    for (MapPinAnnotationObj *view in mPinArr) {
+    for (MapPinAnnotationObj *view in arrDropPin) {
         if ([view.point isEqual:annotation]) {
             return view;
         }
@@ -530,7 +530,7 @@ didChangeDragState:(MKAnnotationViewDragState)newState
 
 - (MapPinAnnotationObj *) getPinAnnotationViewByAnnotationView:(MKAnnotationView *)annotationView
 {
-    for (MapPinAnnotationObj *view in mPinArr) {
+    for (MapPinAnnotationObj *view in arrDropPin) {
         if ([view.point isEqual:annotationView.annotation]) {
             return view;
         } else if (view.tag == annotationView.tag) {

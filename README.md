@@ -4,12 +4,14 @@
 # iOS-CustomPinAnnotationView
 A custom PinAnnotationView.
 The project, "ResizableMKCircleOverlay", is so good, but still has insufficiency for me.
+It only work on one object.
+My case is needed to add pin(one or more) at any time.
 So, I modify some code and make this project.
 There are a image pin view & resize circle overlay.
 
 ## Objective
 Have a custom image pin-annotation view.
-Multi-resizable MKCircle Overlay
+Dynamic multi-resizable MKCircle Overlay
 
 ## TODO
 remove pin annotation view

@@ -22,7 +22,6 @@
     MapPinAnnotationObj *dropPin;
     MapPinAnnotationObj *resizePin;
     MapPinAnnotationObj *addPin;
-    NSString *distance;
 }
 
 @property (weak, nonatomic) IBOutlet MKMapView *mapView;
@@ -435,13 +434,6 @@ didChangeDragState:(MKAnnotationViewDragState)newState
                 [resizePin.circleView setCircleRadius:meterDistance];
             }
             resizePin.setRadius = resizePin.circleView.getCircleRadius;
-            
-            if (resizePin.setRadius > 1000) {
-                distance = [NSString stringWithFormat:@"%.02f km", resizePin.setRadius / 1000];
-            } else {
-                distance = [NSString stringWithFormat:@"%.f m", resizePin.setRadius];
-            }
-            NSLog(@"move distance:%@", distance);
         }
     };
     
@@ -454,6 +446,7 @@ didChangeDragState:(MKAnnotationViewDragState)newState
         self.mapView.userInteractionEnabled = YES;
         
         if (resizePin) {
+            NSString *distance = [self getDistance:resizePin];
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self showToast:distance];
             });
@@ -538,6 +531,19 @@ didChangeDragState:(MKAnnotationViewDragState)newState
         }
     }
     return nil;
+}
+
+- (NSString *) getDistance:(MapPinAnnotationObj *)pin {
+    
+    if (pin == nil) {
+        return @"";
+    
+    } else if (pin.setRadius > 1000) {
+        return [NSString stringWithFormat:@"%.02f km", pin.setRadius / 1000];
+    
+    } else {
+        return [NSString stringWithFormat:@"%.f m", pin.setRadius];
+    }
 }
 
 @end

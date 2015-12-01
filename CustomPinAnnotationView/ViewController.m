@@ -10,6 +10,7 @@
 
 #define DEFAULT_RADIUS 100
 #define PIN_TAG 100
+#define LONG_PRESS_TIME 2.0f
 
 @interface ViewController ()
 {
@@ -22,6 +23,7 @@
     MapPinAnnotationObj *dropPin;
     MapPinAnnotationObj *resizePin;
     MapPinAnnotationObj *addPin;
+    MapPinAnnotationObj *delPin;
 }
 
 @property (weak, nonatomic) IBOutlet MKMapView *mapView;
@@ -31,6 +33,7 @@
 @implementation ViewController
 
 double const circleRadius = 0;
+BOOL isHanding = NO;
 
 - (void) viewDidLoad {
     [super viewDidLoad];
@@ -125,15 +128,41 @@ double const circleRadius = 0;
 didChangeDragState:(MKAnnotationViewDragState)newState
     fromOldState:(MKAnnotationViewDragState)oldState {
     
-    if(newState == MKAnnotationViewDragStateStarting){
-        dropPin = [self getPinAnnotationViewByAnnotationView:annotationView];
-        dropPin.panEnabled = YES;
+    switch (newState) {
+        case MKAnnotationViewDragStateStarting: {
+            dropPin = [self getPinAnnotationViewByAnnotationView:annotationView];
+            dropPin.panEnabled = YES;
+            
+            [self performSelector:@selector(handleLongPressPinDelay) withObject:nil afterDelay:LONG_PRESS_TIME];
+        }
+            break;
+        
+        case MKAnnotationViewDragStateCanceling: {
+            if (dropPin && isHanding) {
+                [self showConfirmDialog:@"Do you want to delete it?" tag:(int)dropPin.tag];
+                delPin = dropPin;
+                dropPin = nil;
+                isHanding = NO;
+            }
+        }
+            break;
+            
+        case MKAnnotationViewDragStateEnding: {
+            dropPin.droppedAt = annotationView.annotation.coordinate;
+            [self addCircle:dropPin];
+            isHanding = NO;
+            dropPin = nil;
+        }
+            break;
+            
+        default:
+            break;
     }
-    if (newState == MKAnnotationViewDragStateEnding) {
-        dropPin.droppedAt = annotationView.annotation.coordinate;
-        [self addCircle:dropPin];
-        dropPin = nil;
-    }
+}
+
+- (void) handleLongPressPinDelay
+{
+    isHanding = YES;
 }
 
 - (MKOverlayRenderer *)mapView:(MKMapView *)mapView
@@ -544,6 +573,24 @@ didChangeDragState:(MKAnnotationViewDragState)newState
     } else {
         return [NSString stringWithFormat:@"%.f m", pin.setRadius];
     }
+}
+
+#pragma mark - UIAlertView delegate
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (buttonIndex == 1) {
+        return;
+    }
+    
+    [self removePinAnnotationView:delPin];
+}
+
+- (void) removePinAnnotationView:(MapPinAnnotationObj *)pin {
+    [self.mapView removeAnnotation:pin.point];
+    [self.mapView removeOverlay:pin.circle];
+    [arrDropPin removeObject:pin];
+    pin = nil;
 }
 
 @end

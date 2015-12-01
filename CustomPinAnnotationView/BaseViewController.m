@@ -41,4 +41,24 @@
     });
 }
 
+- (void) showOkDialog:(NSString *)message tag:(int)tag {
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Information"
+                                                    message:message
+                                                   delegate:self
+                                          cancelButtonTitle:@"OK"
+                                          otherButtonTitles:nil, nil];
+    [alert setTag:tag];
+    [alert show];
+}
+
+- (void) showConfirmDialog:(NSString *)message tag:(int)tag {
+    UIAlertView * alert = [[UIAlertView alloc] initWithTitle:@"Information"
+                                                     message:message
+                                                    delegate:self
+                                           cancelButtonTitle:@"OK"
+                                           otherButtonTitles:@"Cancel", nil];
+    [alert setTag:tag];
+    [alert show];
+}
+
 @end

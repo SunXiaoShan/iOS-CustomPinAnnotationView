@@ -15,4 +15,7 @@
 
 - (void) showToast:(NSString *) text;
 
+- (void) showOkDialog:(NSString *)message tag:(int)tag;
+- (void) showConfirmDialog:(NSString *)message tag:(int)tag;
+
 @end

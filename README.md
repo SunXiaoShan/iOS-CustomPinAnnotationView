@@ -1,5 +1,6 @@
 ![](https://github.com/SunXiaoShan/iOS-CustomPinAnnotationView/blob/master/screenshots/screenshot01.gif)
 ![](https://github.com/SunXiaoShan/iOS-CustomPinAnnotationView/blob/master/screenshots/screenshot02.gif)
+![](https://github.com/SunXiaoShan/iOS-CustomPinAnnotationView/blob/master/screenshots/screenshot03.gif)
 
 # iOS-CustomPinAnnotationView
 A custom PinAnnotationView.
@@ -12,9 +13,6 @@ There are a image pin view & resize circle overlay.
 ## Objective
 Have a custom image pin-annotation view.
 Dynamic multi-resizable MKCircle Overlay
-
-## TODO
-remove pin annotation view
 
 ## Reference
 [OrbJapan/ResizableMKCircleOverlay](https://github.com/OrbJapan/ResizableMKCircleOverlay#resizablemkcircleoverlay)
